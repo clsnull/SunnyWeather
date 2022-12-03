@@ -9,6 +9,7 @@ import com.clsnull.sunnyweather.R
 import com.clsnull.sunnyweather.databinding.ActivityWeatherBinding
 import com.clsnull.sunnyweather.logic.model.Weather
 import com.clsnull.sunnyweather.logic.model.WeatherViewModel
+import com.clsnull.sunnyweather.logic.model.getSky
 
 class WeatherActivity : AppCompatActivity() {
     private lateinit var binding: ActivityWeatherBinding
@@ -39,9 +40,27 @@ class WeatherActivity : AppCompatActivity() {
                 result.exceptionOrNull()?.printStackTrace()
             }
         })
+
+        viewModel.refreshWeather(viewModel.locationLng, viewModel.locationLat)
     }
 
     private fun showWeatherInfo(weather: Weather) {
-        binding.nowIncloud.placeName.text = viewModel.placeName
+        val nowBinding = binding.nowIncloud
+        val forecastBinding = binding.forecastInclude
+        val lifeIndexBinding = binding.lifeIndexInclude
+
+        nowBinding.placeName.text = viewModel.placeName
+        val realtime = weather.realtime
+        val daily = weather.daily
+
+        //设置now.xml布局中的数据
+        val currentTempText = "${realtime.temperature.toInt()} °C"
+        val currentPM25Text = "空气指数 ${realtime.airQuality.aqi.chn.toInt()}"
+        nowBinding.currentTemp.text = currentTempText
+        nowBinding.currentSky.text = getSky(realtime.skycon).info
+        nowBinding.currentAQI.text = currentPM25Text
+        nowBinding.root.setBackgroundResource(getSky(realtime.skycon).bg)
+
+        forecastBinding.root.removeAllViews()
     }
 }
